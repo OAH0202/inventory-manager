@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory Manager — Digitaliza tu inventario con IA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:   #0D1B2A;
+  --blue:   #1565C0;
+  --blue-m: #1976D2;
+  --blue-l: #BBDEFB;
+  --blue-xl:#E3F2FD;
+  --accent: #00B4D8;
+  --green:  #059669;
+  --green-l:#D1FAE5;
+  --grey1:  #1A1A2E;
+  --grey2:  #374151;
+  --grey3:  #6B7280;
+  --grey4:  #E5E7EB;
+  --grey5:  #F9FAFB;
+  --white:  #FFFFFF;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+body {
+  font-family:'Inter',sans-serif;
+  color:var(--grey1);
+  background:var(--white);
+  line-height:1.6;
+}
+
+/* ── NAV ── */
+nav {
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:rgba(13,27,42,0.95);backdrop-filter:blur(8px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;height:64px;
+}
+.nav-brand {
+  font-family:'Syne',sans-serif;font-weight:700;font-size:18px;
+  color:var(--white);letter-spacing:-0.3px;
+}
+.nav-brand span{color:var(--accent)}
+.nav-links{display:flex;gap:28px;list-style:none}
+.nav-links a{color:rgba(255,255,255,0.7);text-decoration:none;font-size:14px;font-weight:500;transition:.15s}
+.nav-links a:hover{color:var(--white)}
+.nav-cta {
+  background:var(--accent);color:var(--navy);
+  padding:8px 20px;border-radius:6px;font-size:13px;font-weight:600;
+  text-decoration:none;transition:.15s;
+}
+.nav-cta:hover{opacity:.9;transform:translateY(-1px)}
+
+/* ── HERO ── */
+.hero {
+  min-height:100vh;
+  background:linear-gradient(135deg, var(--navy) 0%, #1A2744 60%, #0D2A3A 100%);
+  display:flex;align-items:center;
+  padding:120px 5vw 80px;
+  position:relative;overflow:hidden;
+}
+.hero::before {
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 70% 60% at 80% 40%, rgba(0,180,216,0.12) 0%, transparent 70%);
+  pointer-events:none;
+}
+.hero-inner{max-width:1200px;margin:0 auto;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.hero-badge {
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(0,180,216,0.12);border:1px solid rgba(0,180,216,0.3);
+  color:var(--accent);padding:6px 14px;border-radius:20px;font-size:13px;font-weight:500;
+  margin-bottom:24px;
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.hero h1 {
+  font-family:'Syne',sans-serif;font-size:clamp(36px,4.5vw,58px);
+  font-weight:800;line-height:1.1;letter-spacing:-1px;
+  color:var(--white);margin-bottom:20px;
+}
+.hero h1 em{color:var(--accent);font-style:normal}
+.hero p {
+  font-size:18px;color:rgba(187,222,251,0.85);line-height:1.7;margin-bottom:36px;
+}
+.hero-actions{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary {
+  background:var(--accent);color:var(--navy);
+  padding:14px 28px;border-radius:8px;font-size:16px;font-weight:700;
+  text-decoration:none;transition:.2s;display:inline-block;
+}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,180,216,0.35)}
+.btn-outline {
+  background:transparent;color:var(--white);
+  border:1.5px solid rgba(255,255,255,0.25);
+  padding:14px 28px;border-radius:8px;font-size:16px;font-weight:500;
+  text-decoration:none;transition:.2s;display:inline-block;
+}
+.btn-outline:hover{border-color:var(--white);background:rgba(255,255,255,0.05)}
+
+/* Hero stats */
+.hero-stats{display:flex;gap:32px;margin-top:40px;flex-wrap:wrap}
+.stat{border-left:2px solid var(--accent);padding-left:16px}
+.stat-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--white)}
+.stat-label{font-size:12px;color:rgba(255,255,255,0.5);margin-top:2px}
+
+/* Hero right — floating feature cards */
+.hero-right{position:relative;height:440px}
+.feat-card {
+  position:absolute;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.12);backdrop-filter:blur(12px);
+  border-radius:12px;padding:16px 20px;color:var(--white);
+}
+.feat-card .fc-icon{font-size:22px;margin-bottom:8px}
+.feat-card .fc-title{font-family:'Syne',sans-serif;font-size:14px;font-weight:600}
+.feat-card .fc-sub{font-size:12px;color:var(--blue-l);margin-top:4px}
+.fc-1{top:0;left:0;width:200px;animation:float1 4s ease-in-out infinite}
+.fc-2{top:60px;right:0;width:215px;animation:float2 4.5s ease-in-out infinite}
+.fc-3{top:210px;left:20px;width:195px;animation:float1 5s ease-in-out infinite}
+.fc-4{top:260px;right:20px;width:200px;animation:float2 3.8s ease-in-out infinite}
+@keyframes float1{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+@keyframes float2{0%,100%{transform:translateY(-5px)}50%{transform:translateY(5px)}}
+
+/* ── SECTION BASE ── */
+section{padding:96px 5vw}
+.section-inner{max-width:1200px;margin:0 auto}
+.section-label{font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--accent);margin-bottom:12px}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(28px,3vw,42px);font-weight:800;letter-spacing:-0.5px;line-height:1.2;margin-bottom:16px}
+.section-sub{font-size:17px;color:var(--grey3);max-width:600px;line-height:1.7}
+
+/* ── FEATURES ── */
+.features{background:var(--grey5)}
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:48px}
+.feat-item {
+  background:var(--white);border:1px solid var(--grey4);
+  border-radius:12px;padding:28px;transition:.2s;
+  border-top:3px solid transparent;
+}
+.feat-item:hover{transform:translateY(-3px);box-shadow:0 12px 32px rgba(0,0,0,0.08);border-top-color:var(--accent)}
+.fi-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.fi-title{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;margin-bottom:8px;color:var(--grey1)}
+.fi-body{font-size:14px;color:var(--grey3);line-height:1.6}
+
+/* ── PRICING ── */
+.pricing-toggle{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:48px}
+.toggle-label{font-size:14px;color:var(--grey3);font-weight:500}
+.toggle-label.active{color:var(--grey1)}
+.toggle{position:relative;width:46px;height:26px;cursor:pointer}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.slider{position:absolute;inset:0;background:var(--grey4);border-radius:26px;transition:.2s}
+.slider:before{content:'';position:absolute;height:20px;width:20px;left:3px;bottom:3px;background:white;border-radius:50%;transition:.2s;box-shadow:0 1px 4px rgba(0,0,0,0.2)}
+input:checked+.slider{background:var(--blue)}
+input:checked+.slider:before{transform:translateX(20px)}
+.save-tag{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--green-l);color:var(--green);font-weight:600}
+
+.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.plan-card {
+  border:1.5px solid var(--grey4);border-radius:16px;overflow:hidden;
+  transition:.2s;background:var(--white);
+}
+.plan-card:hover{box-shadow:0 16px 40px rgba(0,0,0,0.1)}
+.plan-card.featured{border-color:var(--blue);box-shadow:0 0 0 4px rgba(21,101,192,0.08)}
+.plan-head{padding:28px 24px;border-bottom:1px solid var(--grey4)}
+.plan-head.featured{background:var(--blue)}
+.pop-badge{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:rgba(0,180,216,0.15);color:var(--accent);margin-bottom:10px}
+.plan-name{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;margin-bottom:4px}
+.plan-card.featured .plan-name{color:var(--white)}
+.plan-price{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;line-height:1;margin:12px 0 4px}
+.plan-card.featured .plan-price{color:var(--white)}
+.price-period{font-size:14px;font-weight:400}
+.price-annual{font-size:12px;color:var(--green);font-weight:600;min-height:18px;margin-top:2px}
+.plan-card.featured .price-annual{color:#A5F3C8}
+.plan-body{padding:24px}
+.plan-limits{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:20px;padding-bottom:20px;border-bottom:1px solid var(--grey4)}
+.lim{font-size:12px}
+.lim-k{color:var(--grey3)}
+.lim-v{font-weight:600;color:var(--grey1)}
+.plan-feats{display:flex;flex-direction:column;gap:8px}
+.pf{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--grey1)}
+.pf-check{width:16px;height:16px;border-radius:50%;background:var(--green-l);color:var(--green);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;margin-top:1px}
+.pf-x{width:16px;height:16px;border-radius:50%;background:var(--grey4);color:var(--grey3);display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;margin-top:1px}
+.pf-text.muted{color:var(--grey3)}
+.plan-cta{display:block;margin-top:24px;padding:12px;border-radius:8px;text-align:center;font-size:14px;font-weight:600;text-decoration:none;transition:.2s}
+.cta-outline{border:1.5px solid var(--grey4);color:var(--grey2)}
+.cta-outline:hover{border-color:var(--blue);color:var(--blue)}
+.cta-filled{background:var(--blue);color:var(--white)}
+.cta-filled:hover{background:var(--blue-m)}
+.cta-dark{background:var(--navy);color:var(--white)}
+.cta-dark:hover{background:var(--grey1)}
+
+/* Annual saving box */
+.annual-row{display:flex;gap:16px;margin-top:48px}
+.saving-box{flex:1;background:var(--green-l);border:1px solid rgba(5,150,105,0.2);border-radius:12px;padding:20px 24px;display:flex;align-items:center;gap:16px}
+.saving-num{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--green);white-space:nowrap}
+.saving-text{font-size:13px;color:var(--grey2);line-height:1.5}
+
+/* ── AI SECTION ── */
+.ai-section{background:var(--navy);color:var(--white)}
+.ai-section .section-label{color:var(--accent)}
+.ai-section .section-title{color:var(--white)}
+.ai-section .section-sub{color:var(--blue-l)}
+.ai-inner{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.ai-steps{display:flex;flex-direction:column;gap:20px;margin-top:40px}
+.ai-step{display:flex;gap:16px;align-items:flex-start}
+.step-num{width:32px;height:32px;border-radius:50%;background:var(--accent);color:var(--navy);font-family:'Syne',sans-serif;font-size:14px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-body{}
+.step-title{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:4px}
+.step-sub{font-size:13px;color:var(--blue-l);line-height:1.5}
+.ai-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:32px}
+.ai-stat-big{font-family:'Syne',sans-serif;font-size:48px;font-weight:800;color:var(--accent)}
+.ai-stat-label{font-size:14px;color:var(--blue-l);margin-top:4px;margin-bottom:28px}
+.ai-note{background:rgba(0,180,216,0.1);border:1px solid rgba(0,180,216,0.2);border-radius:10px;padding:16px;font-size:13px;color:var(--blue-l);line-height:1.6}
+
+/* ── CTA SECTION ── */
+.cta-section{background:linear-gradient(135deg,var(--blue) 0%,#0D3B8C 100%);text-align:center;padding:100px 5vw}
+.cta-section h2{font-family:'Syne',sans-serif;font-size:clamp(28px,3.5vw,46px);font-weight:800;color:var(--white);margin-bottom:16px;letter-spacing:-0.5px}
+.cta-section p{font-size:18px;color:var(--blue-l);margin-bottom:40px}
+.cta-btns{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
+.cta-btns .btn-primary{background:var(--white);color:var(--blue)}
+.cta-btns .btn-outline{border-color:rgba(255,255,255,0.35)}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);color:rgba(255,255,255,0.5);text-align:center;padding:32px;font-size:13px}
+footer strong{color:rgba(255,255,255,0.8)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .hero-inner,.ai-inner{grid-template-columns:1fr}
+  .hero-right{display:none}
+  .feat-grid,.plans-grid{grid-template-columns:1fr}
+  .annual-row{flex-direction:column}
+  nav .nav-links{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">Inventory<span>Manager</span></div>
+  <ul class="nav-links">
+    <li><a href="#features">Funciones</a></li>
+    <li><a href="#pricing">Precios</a></li>
+    <li><a href="#ia">IA</a></li>
+    <li><a href="#contacto">Contacto</a></li>
+  </ul>
+  <a href="#contacto" class="nav-cta">Solicitar demo</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-badge">
+        <span class="badge-dot"></span>
+        Disponible en Honduras y Centroamérica
+      </div>
+      <h1>Controla tu inventario con <em>IA real</em></h1>
+      <p>App móvil offline, órdenes de compra, análisis automático de facturas y auditorías con scanner. Todo en una sola plataforma diseñada para tu negocio.</p>
+      <div class="hero-actions">
+        <a href="#contacto" class="btn-primary">Solicitar demo gratuita</a>
+        <a href="#pricing" class="btn-outline">Ver precios</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <div class="stat-num">3</div>
+          <div class="stat-label">Planes disponibles</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">8</div>
+          <div class="stat-label">Roles de usuario</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">IA</div>
+          <div class="stat-label">Análisis de facturas</div>
+        </div>
+        <div class="stat">
+          <div class="stat-num">48h</div>
+          <div class="stat-label">Deployment completo</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="feat-card fc-1">
+        <div class="fc-icon">📦</div>
+        <div class="fc-title">Inventario en tiempo real</div>
+        <div class="fc-sub">Barcodes · Ubicaciones · Alertas</div>
+      </div>
+      <div class="feat-card fc-2">
+        <div class="fc-icon">🤖</div>
+        <div class="fc-title">IA analiza tu factura</div>
+        <div class="fc-sub">Auto-aprobación si coincide</div>
+      </div>
+      <div class="feat-card fc-3">
+        <div class="fc-icon">📱</div>
+        <div class="fc-title">App offline Android</div>
+        <div class="fc-sub">Funciona sin internet</div>
+      </div>
+      <div class="feat-card fc-4">
+        <div class="fc-icon">🏭</div>
+        <div class="fc-title">Proveedores + POs</div>
+        <div class="fc-sub">PDF · Excel · Historial</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="section-inner">
+    <div class="section-label">Funcionalidades</div>
+    <h2 class="section-title">Una plataforma. Todo conectado.</h2>
+    <p class="section-sub">Cada módulo trabaja en conjunto. Lo que pasa en bodega se refleja en tiempo real para gerencia.</p>
+    <div class="feat-grid">
+      <div class="feat-item">
+        <div class="fi-icon" style="background:#E3F2FD">📦</div>
+        <div class="fi-title">Inventario completo</div>
+        <div class="fi-body">Barcodes, categorías, ubicaciones, stock mínimo/máximo y alertas automáticas de stock bajo.</div>
+      </div>
+      <div class="feat-item">
+        <div class="fi-icon" style="background:#E8F5E9">📱</div>
+        <div class="fi-title">App móvil offline</div>
+        <div class="fi-body">Tu equipo de bodega trabaja aunque no haya internet. Todo se sincroniza automáticamente al reconectarse.</div>
+      </div>
+      <div class="feat-item">
+        <div class="fi-icon" style="background:#FFF8E1">🚚</div>
+        <div class="fi-title">Proveedores y órdenes de compra</div>
+        <div class="fi-body">Genera POs con PDF y Excel, rastrea tiempos de entrega y analiza el rendimiento de cada proveedor.</div>
+      </div>
+      <div class="feat-item">
+        <div class="fi-icon" style="background:#FCE4EC">🧠</div>
+        <div class="fi-title">IA en facturas</div>
+        <div class="fi-body">Fotografía la factura. La IA compara automáticamente contra la PO y detecta diferencias al instante.</div>
+      </div>
+      <div class="feat-item">
+        <div class="fi-icon" style="background:#F3E5F5">📋</div>
+        <div class="fi-title">Auditorías digitales</div>
+        <div class="fi-body">Scanner con app móvil. Detecta discrepancias entre el sistema y el conteo físico. Ajuste en un clic.</div>
+      </div>
+      <div class="feat-item">
+        <div class="fi-icon" style="background:#E8EAF6">🔐</div>
+        <div class="fi-title">Roles y permisos</div>
+        <div class="fi-body">8 roles distintos: dueño, gerente, bodeguero, área, compras, contabilidad y más. Cada quien ve solo lo suyo.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="section-inner">
+    <div style="text-align:center;margin-bottom:16px">
+      <div class="section-label" style="text-align:center">Precios</div>
+      <h2 class="section-title" style="text-align:center">Elige el plan que se adapta a tu negocio</h2>
+    </div>
+
+    <div class="pricing-toggle">
+      <span class="toggle-label active" id="lbl-monthly">Mensual</span>
+      <label class="toggle">
+        <input type="checkbox" id="billing-toggle" onchange="updatePricing()">
+        <span class="slider"></span>
+      </label>
+      <span class="toggle-label" id="lbl-annual">Anual</span>
+      <span class="save-tag" id="save-tag" style="display:none">Ahorra hasta 10%</span>
+    </div>
+
+    <div class="plans-grid">
+      <!-- BÁSICO -->
+      <div class="plan-card">
+        <div class="plan-head">
+          <div class="plan-name">Básico</div>
+          <div class="plan-price"><span id="price-basic">$99</span><span class="price-period">/mes</span></div>
+          <div class="price-annual" id="annual-basic"></div>
+        </div>
+        <div class="plan-body">
+          <div class="plan-limits">
+            <div class="lim"><span class="lim-k">Productos </span><span class="lim-v">200</span></div>
+            <div class="lim"><span class="lim-k">Usuarios </span><span class="lim-v">7</span></div>
+            <div class="lim"><span class="lim-k">Ubicaciones </span><span class="lim-v">2</span></div>
+            <div class="lim"><span class="lim-k">Proveedores </span><span class="lim-v">—</span></div>
+          </div>
+          <div class="plan-feats">
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Inventario + barcodes</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">App móvil offline</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Órdenes internas</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Alertas stock bajo</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Excel importar/exportar</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">8 roles y permisos</span></div>
+            <div class="pf"><div class="pf-x">—</div><span class="pf-text muted">Proveedores / POs</span></div>
+            <div class="pf"><div class="pf-x">—</div><span class="pf-text muted">IA análisis facturas</span></div>
+            <div class="pf"><div class="pf-x">—</div><span class="pf-text muted">Auditorías</span></div>
+          </div>
+          <a href="#contacto" class="plan-cta cta-outline">Comenzar con Básico</a>
+        </div>
+      </div>
+
+      <!-- PRO -->
+      <div class="plan-card featured">
+        <div class="plan-head featured">
+          <div class="pop-badge">Más popular</div>
+          <div class="plan-name">Pro</div>
+          <div class="plan-price"><span id="price-pro">$199</span><span class="price-period" style="color:rgba(255,255,255,0.7)">/mes</span></div>
+          <div class="price-annual" id="annual-pro"></div>
+        </div>
+        <div class="plan-body">
+          <div class="plan-limits">
+            <div class="lim"><span class="lim-k">Productos </span><span class="lim-v">2,000</span></div>
+            <div class="lim"><span class="lim-k">Usuarios </span><span class="lim-v">10</span></div>
+            <div class="lim"><span class="lim-k">Ubicaciones </span><span class="lim-v">10</span></div>
+            <div class="lim"><span class="lim-k">Proveedores </span><span class="lim-v">20</span></div>
+          </div>
+          <div class="plan-feats">
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Todo lo de Básico</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Proveedores + POs (PDF/Excel)</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">IA análisis de facturas</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Auditorías con scanner móvil</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Pedidos programados</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Rendimiento de proveedores</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Backups automáticos</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Telegram monitoring bot</span></div>
+            <div class="pf"><div class="pf-x">—</div><span class="pf-text muted">API key IA propia</span></div>
+            <div class="pf"><div class="pf-x">—</div><span class="pf-text muted">Multi-organización</span></div>
+          </div>
+          <a href="#contacto" class="plan-cta cta-filled">Comenzar con Pro</a>
+        </div>
+      </div>
+
+      <!-- ENTERPRISE -->
+      <div class="plan-card">
+        <div class="plan-head">
+          <div class="plan-name">Enterprise</div>
+          <div class="plan-price"><span id="price-ent">$499</span><span class="price-period">/mes</span></div>
+          <div class="price-annual" id="annual-ent"></div>
+        </div>
+        <div class="plan-body">
+          <div class="plan-limits">
+            <div class="lim"><span class="lim-k">Productos </span><span class="lim-v">Ilimitado</span></div>
+            <div class="lim"><span class="lim-k">Usuarios </span><span class="lim-v">Ilimitado</span></div>
+            <div class="lim"><span class="lim-k">Ubicaciones </span><span class="lim-v">Ilimitado</span></div>
+            <div class="lim"><span class="lim-k">Proveedores </span><span class="lim-v">Ilimitado</span></div>
+          </div>
+          <div class="plan-feats">
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Todo lo de Pro</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">API key IA propia por org</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Límite de gasto IA configurable</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Multi-organización</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">SLA garantizado</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Soporte prioritario</span></div>
+            <div class="pf"><div class="pf-check">✓</div><span class="pf-text">Onboarding dedicado</span></div>
+          </div>
+          <a href="#contacto" class="plan-cta cta-dark">Contactar para Enterprise</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Annual savings row -->
+    <div class="annual-row" id="savings-row" style="display:none">
+      <div class="saving-box">
+        <div class="saving-num">$120</div>
+        <div class="saving-text"><strong>Plan Básico anual</strong><br>$89/mes · $1,068 al año</div>
+      </div>
+      <div class="saving-box">
+        <div class="saving-num">$240</div>
+        <div class="saving-text"><strong>Plan Pro anual</strong><br>$179/mes · $2,148 al año</div>
+      </div>
+      <div class="saving-box">
+        <div class="saving-num">$588</div>
+        <div class="saving-text"><strong>Plan Enterprise anual</strong><br>$450/mes · $5,400 al año</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AI SECTION -->
+<section class="ai-section" id="ia">
+  <div class="section-inner">
+    <div class="ai-inner">
+      <div>
+        <div class="section-label">Inteligencia Artificial</div>
+        <h2 class="section-title">La factura se verifica sola</h2>
+        <p class="section-sub">Tu bodeguero fotografía la factura. El sistema hace el resto.</p>
+        <div class="ai-steps">
+          <div class="ai-step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+              <div class="step-title">Bodeguero fotografía la factura</div>
+              <div class="step-sub">Con la app Android, sin necesidad de internet en bodega.</div>
+            </div>
+          </div>
+          <div class="ai-step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+              <div class="step-title">IA analiza y compara</div>
+              <div class="step-sub">Compara automáticamente contra la orden de compra generada previamente.</div>
+            </div>
+          </div>
+          <div class="ai-step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+              <div class="step-title">Si coincide: inventario actualizado</div>
+              <div class="step-sub">Auto-aprobación instantánea. Sin intervención manual.</div>
+            </div>
+          </div>
+          <div class="ai-step">
+            <div class="step-num">4</div>
+            <div class="step-body">
+              <div class="step-title">Si hay diferencia: alerta al gerente</div>
+              <div class="step-sub">Aprueba o rechaza desde el celular. Sin estar en bodega.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-stat-big">Incluida</div>
+        <div class="ai-stat-label">en tu plan mensual · sin cargo adicional hasta el límite</div>
+        <div class="ai-note">
+          ¿Necesitas más? El uso adicional se cobra a costo directo más un 2% fijo de margen. Sin sorpresas ni precios inflados.<br><br>
+          En Enterprise: conecta tu propia API key de Anthropic y configura límites de gasto por organización.
+        </div>
+        <div style="margin-top:24px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.08)">
+            <span style="font-size:22px">🤖</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--white)">Claude Haiku 4.5</div>
+              <div style="font-size:12px;color:var(--blue-l)">Modelo de Anthropic · Análisis en segundos</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:14px;background:rgba(255,255,255,0.05);border-radius:8px;border:1px solid rgba(255,255,255,0.08)">
+            <span style="font-size:22px">🔒</span>
+            <div>
+              <div style="font-size:13px;font-weight:600;color:var(--white)">Servidor dedicado</div>
+              <div style="font-size:12px;color:var(--blue-l)">Tus datos en tu servidor · No hay terceros</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section" id="contacto">
+  <h2>¿Listo para digitalizar tu inventario?</h2>
+  <p>Demo gratuita de 30 minutos. Deployment completo en 48 horas.</p>
+  <div class="cta-btns">
+    <a href="mailto:alejandro.hernandez2@proton.me" class="btn-primary">Solicitar demo ahora</a>
+    <a href="#pricing" class="btn-outline">Ver todos los planes</a>
+  </div>
+  <p style="margin-top:32px;font-size:13px;color:rgba(255,255,255,0.5)">
+    Sin contratos de permanencia · Puedes cambiar de plan en cualquier momento
+  </p>
+</section>
+
+<footer>
+  <strong>Inventory Manager</strong> · invmanagerapp.org · Honduras, Centroamérica<br>
+  <span style="margin-top:8px;display:inline-block">Hecho para PYMEs centroamericanas</span>
+</footer>
+
+<script>
+const prices = { basic:{m:99,a:89}, pro:{m:199,a:179}, ent:{m:499,a:450} };
+
+function updatePricing() {
+  const annual = document.getElementById('billing-toggle').checked;
+  const ml = document.getElementById('lbl-monthly');
+  const al = document.getElementById('lbl-annual');
+  ml.classList.toggle('active', !annual);
+  al.classList.toggle('active', annual);
+  document.getElementById('save-tag').style.display = annual ? 'inline-block' : 'none';
+  document.getElementById('savings-row').style.display = annual ? 'flex' : 'none';
+
+  const p = annual ? 'a' : 'm';
+  document.getElementById('price-basic').textContent = '$' + prices.basic[p];
+  document.getElementById('price-pro').textContent   = '$' + prices.pro[p];
+  document.getElementById('price-ent').textContent   = '$' + prices.ent[p];
+
+  const saves = { basic: 120, pro: 240, ent: 588 };
+  const totals = { basic: 1068, pro: 2148, ent: 5400 };
+  ['basic','pro','ent'].forEach(k => {
+    const el = document.getElementById('annual-' + k);
+    if (annual) {
+      el.textContent = `Ahorras $${saves[k]}/año · Total $${totals[k].toLocaleString()}`;
+    } else {
+      el.textContent = `Paga anual y ahorra $${saves[k]}/año`;
+      el.style.color = '';
+    }
+  });
+}
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a => {
+  a.addEventListener('click', e => {
+    const target = document.querySelector(a.getAttribute('href'));
+    if (target) { e.preventDefault(); target.scrollIntoView({ behavior: 'smooth' }); }
+  });
+});
+
+updatePricing();
+</script>
+</body>
+</html>
